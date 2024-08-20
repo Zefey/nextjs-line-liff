@@ -1,0 +1,16 @@
+.container {
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.block {
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
+  font-size: 32px;
+  span {
+    display: inline-block;
+    padding-bottom: 10px;
+  }
+}
