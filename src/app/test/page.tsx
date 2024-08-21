@@ -6,16 +6,22 @@ import { useLiffContext } from '../liffContext'
 
 import styles from './page.module.scss'
 
-export default function Home() {
+const Test = () => {
   const router = useRouter()
   const { liffObject, liffInfo } = useLiffContext()
+  const test: any = null
+
   console.log('liffObject', liffObject)
   console.log('liffInfo', liffInfo)
+
   return (
     <div>
       <Button color="primary" onClick={() => router.back()}>
-        back
+        {/* 尝试错误触发 */}
+        back{test.a.b}
       </Button>
     </div>
   )
 }
+
+export default Test

@@ -3,7 +3,7 @@
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { useLiffContext } from './liffContext'
-import { Avatar, Button, Ellipsis, List, Space } from 'antd-mobile'
+import { Avatar, Button, Dialog, Ellipsis, List, Space } from 'antd-mobile'
 import { useRouter } from 'next/navigation'
 
 import styles from './page.module.scss'
@@ -102,12 +102,32 @@ export default function Home() {
     router.push('/test')
   }
 
+  const handleScan = () => {
+    if (liffObject?.isLoggedIn()) {
+      liffObject
+        ?.scanCodeV2()
+        .then((result) => {
+          // result = { value: "" }
+          console.log('result', result)
+          Dialog.alert({
+            content: result.value,
+            closeOnMaskClick: true,
+          })
+        })
+        .catch((error) => {
+          console.log('error', error)
+        })
+    } else {
+      liffObject?.login()
+    }
+  }
+
   return (
     <div className={styles.container}>
       <Head>
         <title>LIFF Starter</title>
       </Head>
-      <Space>
+      <Space wrap>
         {info.loggedIn ? (
           <Button onClick={handleLogout} color="primary">
             logout
@@ -123,6 +143,9 @@ export default function Home() {
         </Button>
         <Button onClick={handleJump} color="primary">
           jump test
+        </Button>
+        <Button onClick={handleScan} color="primary">
+          scan qrcode
         </Button>
       </Space>
 

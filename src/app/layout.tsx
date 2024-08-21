@@ -6,6 +6,9 @@ import './globals.css'
 import { ILiffInfo, LiffContextProvider } from './liffContext'
 import liff, { Liff } from '@line/liff'
 import { useEffect, useState } from 'react'
+// import enUS from 'antd-mobile/es/locales/en-US'
+import thTH from 'antd-mobile/es/locales/th-TH'
+import { ConfigProvider } from 'antd-mobile'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -52,7 +55,7 @@ export default function RootLayout({
   }, [])
 
   return (
-    <html lang="en">
+    <html>
       <body className={inter.className}>
         <LiffContextProvider
           value={{
@@ -61,7 +64,7 @@ export default function RootLayout({
             liffError,
           }}
         >
-          {children}
+          <ConfigProvider locale={thTH}>{children}</ConfigProvider>
         </LiffContextProvider>
       </body>
     </html>
