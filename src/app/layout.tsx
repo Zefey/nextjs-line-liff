@@ -1,16 +1,40 @@
 'use client'
 
-import { Inter } from 'next/font/google'
 import 'normalize.css/normalize.css'
 import './globals.css'
-import { ILiffInfo, LiffContextProvider } from './liffContext'
+import { ILiffInfo, LiffContextProvider } from './context/liffContext'
 import liff, { Liff } from '@line/liff'
 import { useEffect, useState } from 'react'
-// import enUS from 'antd-mobile/es/locales/en-US'
-import thTH from 'antd-mobile/es/locales/th-TH'
 import { ConfigProvider } from 'antd-mobile'
+import { IntlProvider } from 'react-intl'
+import antdzhCN from 'antd-mobile/es/locales/zh-CN'
+import antdenUS from 'antd-mobile/es/locales/en-US'
+import en from '../../lang/en.json'
+import zh from '../../lang/zh.json'
+import { LanguageProvider, LocaleType, useLanguage } from './context/languageContext'
 
-const inter = Inter({ subsets: ['latin'] })
+const appLocale = {
+  en: {
+    messages: en,
+    antd: antdenUS,
+    locale: 'en-US',
+  },
+  zh: {
+    messages: zh,
+    antd: antdzhCN,
+    locale: 'zh-CN',
+  },
+}
+
+const IntlWrapper = ({ children }: { children: any }) => {
+  const { locale } = useLanguage()
+
+  return (
+    <IntlProvider messages={appLocale[locale].messages} locale={locale} defaultLocale={locale}>
+      <ConfigProvider locale={appLocale[locale].antd}>{children}</ConfigProvider>
+    </IntlProvider>
+  )
+}
 
 export default function RootLayout({
   children,
@@ -34,6 +58,9 @@ export default function RootLayout({
         const version = liff.getVersion()
         const lineVersion = liff.getLineVersion()
         const inClient = liff.isInClient()
+        const loggedIn = liff.isLoggedIn()
+        const accessToken = liff.getAccessToken()
+        const IDToken = liff.getIDToken()
         setLiffInfo({
           context,
           os,
@@ -41,6 +68,9 @@ export default function RootLayout({
           version,
           lineVersion,
           inClient,
+          loggedIn,
+          accessToken,
+          IDToken,
         })
       })
       .catch((error) => {
@@ -56,16 +86,20 @@ export default function RootLayout({
 
   return (
     <html>
-      <body className={inter.className}>
-        <LiffContextProvider
-          value={{
-            liffObject,
-            liffInfo,
-            liffError,
-          }}
-        >
-          <ConfigProvider locale={thTH}>{children}</ConfigProvider>
-        </LiffContextProvider>
+      <body>
+        <LanguageProvider>
+          <IntlWrapper>
+            <LiffContextProvider
+              value={{
+                liffObject,
+                liffInfo,
+                liffError,
+              }}
+            >
+              {children}
+            </LiffContextProvider>
+          </IntlWrapper>
+        </LanguageProvider>
       </body>
     </html>
   )

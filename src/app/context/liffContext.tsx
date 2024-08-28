@@ -8,6 +8,9 @@ export interface ILiffInfo {
   version: ReturnType<Liff['getVersion']>
   lineVersion: ReturnType<Liff['getLineVersion']>
   inClient: ReturnType<Liff['isInClient']>
+  loggedIn: ReturnType<Liff['isLoggedIn']>
+  accessToken: ReturnType<Liff['getAccessToken']>
+  IDToken: ReturnType<Liff['getIDToken']>
 }
 
 export interface ILiffContext {

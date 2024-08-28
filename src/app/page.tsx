@@ -1,10 +1,12 @@
 'use client'
 
-import Head from 'next/head'
-import { useEffect, useState } from 'react'
-import { useLiffContext } from './liffContext'
-import { Avatar, Button, Dialog, Ellipsis, List, Space } from 'antd-mobile'
+import { useEffect, useMemo, useState } from 'react'
+import { useLiffContext } from '@/app/context/liffContext'
+import { LocaleType, useLanguage } from '@/app/context/languageContext'
+import { ActionSheet, Avatar, Button, Dialog, Ellipsis, List, Space } from 'antd-mobile'
 import { useRouter } from 'next/navigation'
+import { FormattedMessage } from 'react-intl'
+import type { Action } from 'antd-mobile/es/components/action-sheet'
 
 import styles from './page.module.scss'
 
@@ -12,12 +14,20 @@ export default function Home() {
   const router = useRouter()
   const [info, setInfo] = useState<any>({})
   const { liffObject, liffInfo } = useLiffContext()
+  const { setLocale } = useLanguage()
+  const [actionVisible, setActionVisible] = useState(false)
 
+  const actions = useMemo<Action[]>(() => {
+    return [
+      { text: '中文', key: 'zh' },
+      { text: 'English', key: 'en' },
+    ]
+  }, [])
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (res) => {
-        console.log('getCurrentPosition', res.coords) //包含位置的经纬度、速度、海拔、经纬度精度、海拔精度信息
-
+        console.log('getCurrentPosition', res.coords)
+        //包含位置的经纬度、速度、海拔、经纬度精度、海拔精度信息
         setInfo((prev: any) => ({
           ...prev,
           latitude: res.coords.latitude,
@@ -25,10 +35,9 @@ export default function Home() {
         }))
       },
       (err) => {
-        console.log('getCurrentPosition', err) //获取失败的原因
+        console.log('getCurrentPosition', err)
       },
       {
-        //可增加的4个配置参数
         enableHighAccuracy: true, //高精度
         timeout: 5000, //超时时间,以ms为单位
         maximumAge: 24 * 60 * 60 * 1000, //位置缓存时间,以ms为单位
@@ -39,15 +48,6 @@ export default function Home() {
   useEffect(() => {
     if (liffObject) {
       liffObject.ready.then(() => {
-        const loggedIn = liffObject.isLoggedIn()
-        const accessToken = liffObject.getAccessToken()
-        const IDToken = liffObject.getIDToken()
-        setInfo((prev: any) => ({
-          ...prev,
-          loggedIn,
-          accessToken,
-          IDToken,
-        }))
         if (liffInfo?.inClient) {
           liffObject?.permission
             .query('profile')
@@ -56,24 +56,26 @@ export default function Home() {
                 ...prev,
                 profileState: permissionStatus.state,
               }))
-            })
-            .catch((err) => {
-              console.log('error', err)
-            })
 
-          liffObject
-            .getProfile()
-            .then(({ userId, displayName, pictureUrl, statusMessage }) => {
-              setInfo((prev: any) => ({
-                ...prev,
-                userId,
-                displayName,
-                pictureUrl,
-                statusMessage,
-              }))
+              if (permissionStatus.state === 'granted') {
+                liffObject
+                  .getProfile()
+                  .then(({ userId, displayName, pictureUrl, statusMessage }) => {
+                    setInfo((prev: any) => ({
+                      ...prev,
+                      userId,
+                      displayName,
+                      pictureUrl,
+                      statusMessage,
+                    }))
+                  })
+                  .catch((err) => {
+                    console.log('getProfile error', err)
+                  })
+              }
             })
             .catch((err) => {
-              console.log('error', err)
+              console.log('query profile error', err)
             })
         }
       })
@@ -122,34 +124,40 @@ export default function Home() {
     }
   }
 
+  const handleSwitchLanguage = () => {
+    setActionVisible(true)
+  }
+
   return (
     <div className={styles.container}>
-      <Head>
-        <title>LIFF Starter</title>
-      </Head>
       <Space wrap>
-        {info.loggedIn ? (
+        {liffInfo?.loggedIn ? (
           <Button onClick={handleLogout} color="primary">
-            logout
+            <FormattedMessage defaultMessage="登出" />
           </Button>
         ) : (
           <Button onClick={handleLogin} color="primary">
-            login
+            <FormattedMessage defaultMessage="登录" />
           </Button>
         )}
 
-        <Button onClick={handleAuthProfile} color="primary">
-          auth-profile
-        </Button>
+        {info.profileState === 'prompt' && (
+          <Button onClick={handleAuthProfile} color="primary">
+            <FormattedMessage defaultMessage="授权" />
+          </Button>
+        )}
         <Button onClick={handleJump} color="primary">
-          jump test
+          <FormattedMessage defaultMessage="跳转" />
         </Button>
         <Button onClick={handleScan} color="primary">
-          scan qrcode
+          <FormattedMessage defaultMessage="扫码" />
+        </Button>
+        <Button onClick={handleSwitchLanguage} color="primary">
+          <FormattedMessage defaultMessage="切换语言" />
         </Button>
       </Space>
 
-      <List header="list info">
+      <List header={<FormattedMessage defaultMessage="列表信息" />}>
         <List.Item extra={<Avatar src={info.pictureUrl} />} description={info.userId}>
           {info.displayName}
         </List.Item>
@@ -160,35 +168,62 @@ export default function Home() {
             </div>
           }
         >
-          location
+          <FormattedMessage defaultMessage="位置" />
         </List.Item>
-        <List.Item extra={liffInfo?.os}>os</List.Item>
-        <List.Item extra={liffInfo?.appLanguage}>appLanguage</List.Item>
-        <List.Item extra={liffInfo?.version}>version</List.Item>
-        <List.Item extra={liffInfo?.lineVersion}>lineVersion</List.Item>
-        <List.Item extra={String(liffInfo?.inClient)}>inClient</List.Item>
-        <List.Item extra={String(info.loggedIn)}>loggedIn</List.Item>
-        <List.Item extra={info.profileState}>profileState</List.Item>
+        <List.Item extra={liffInfo?.os}>
+          <FormattedMessage defaultMessage="系统" />
+        </List.Item>
+        <List.Item extra={liffInfo?.appLanguage}>
+          <FormattedMessage defaultMessage="语言" />
+        </List.Item>
+        <List.Item extra={liffInfo?.version}>
+          <FormattedMessage defaultMessage="版本" />
+        </List.Item>
+        <List.Item extra={liffInfo?.lineVersion}>
+          <FormattedMessage defaultMessage="line版本" />
+        </List.Item>
+        <List.Item extra={String(liffInfo?.inClient)}>
+          <FormattedMessage defaultMessage="是否客户端" />
+        </List.Item>
+        <List.Item extra={String(liffInfo?.loggedIn)}>
+          <FormattedMessage defaultMessage="登录状态" />
+        </List.Item>
+        <List.Item extra={info.profileState}>
+          <FormattedMessage defaultMessage="授权状态" />
+        </List.Item>
       </List>
 
       <div className={styles.block}>
-        <span>accessToken</span>
+        <span>
+          <FormattedMessage defaultMessage="accessToken" />
+        </span>
         <Ellipsis
-          content={info.accessToken ?? ''}
+          content={liffInfo?.accessToken ?? ''}
           defaultExpanded={true}
-          expandText="展开"
-          collapseText="收起"
+          expandText={<FormattedMessage defaultMessage="展开" />}
+          collapseText={<FormattedMessage defaultMessage="收起" />}
         />
       </div>
       <div className={styles.block}>
-        <span>IDToken</span>
+        <span>
+          <FormattedMessage defaultMessage="IDToken" />
+        </span>
         <Ellipsis
-          content={info.IDToken ?? ''}
+          content={liffInfo?.IDToken ?? ''}
           defaultExpanded={true}
-          expandText="展开"
-          collapseText="收起"
+          expandText={<FormattedMessage defaultMessage="展开" />}
+          collapseText={<FormattedMessage defaultMessage="收起" />}
         />
       </div>
+      <ActionSheet
+        visible={actionVisible}
+        actions={actions}
+        onAction={(action) => {
+          setLocale(action.key as LocaleType)
+          setActionVisible(false)
+        }}
+        onClose={() => setActionVisible(false)}
+      />
     </div>
   )
 }

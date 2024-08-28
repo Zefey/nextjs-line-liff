@@ -2,24 +2,35 @@
 
 import { Button } from 'antd-mobile'
 import { useRouter } from 'next/navigation'
-import { useLiffContext } from '../liffContext'
+import { useLiffContext } from '@/app/context/liffContext'
+import { FormattedMessage, useIntl } from 'react-intl'
 
 import styles from './page.module.scss'
 
 const Test = () => {
   const router = useRouter()
+  const intl = useIntl()
   const { liffObject, liffInfo } = useLiffContext()
-  const test: any = null
 
   console.log('liffObject', liffObject)
   console.log('liffInfo', liffInfo)
 
   return (
-    <div>
+    <div className={styles.container}>
       <Button color="primary" onClick={() => router.back()}>
-        {/* 尝试错误触发 */}
-        back{test.a.b}
+        <FormattedMessage defaultMessage={'返回'} />
       </Button>
+      <p>
+        <FormattedMessage defaultMessage={'测试'} />
+      </p>
+      <p>
+        {intl.formatMessage(
+          {
+            defaultMessage: '替换模板测试,名字{name}',
+          },
+          { name: '张三' },
+        )}
+      </p>
     </div>
   )
 }
