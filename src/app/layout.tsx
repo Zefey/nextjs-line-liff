@@ -12,6 +12,7 @@ import antdenUS from 'antd-mobile/es/locales/en-US'
 import en from '../../lang/en.json'
 import zh from '../../lang/zh.json'
 import { LanguageProvider, LocaleType, useLanguage } from './context/languageContext'
+import type VConsole from 'vconsole'
 
 const appLocale = {
   en: {
@@ -44,6 +45,20 @@ export default function RootLayout({
   const [liffObject, setLiffObject] = useState<Liff | null>(null)
   const [liffError, setLiffError] = useState('')
   const [liffInfo, setLiffInfo] = useState<ILiffInfo | null>(null)
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      let vConsole: VConsole
+      const loadVConsole = async () => {
+        const VConsole = (await import('vconsole')).default
+        vConsole = new VConsole()
+      }
+      loadVConsole()
+      return () => {
+        if (vConsole) vConsole.destroy()
+      }
+    }
+  }, [])
 
   useEffect(() => {
     console.log('start liff.init()...', process.env.LIFF_ID)

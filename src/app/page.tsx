@@ -83,12 +83,14 @@ export default function Home() {
   }, [liffObject])
 
   const handleLogin = () => {
+    console.log('liffObject?.isLoggedIn()', liffObject?.isLoggedIn())
     if (!liffObject?.isLoggedIn()) {
       liffObject?.login()
     }
   }
 
   const handleLogout = () => {
+    console.log('liffObject?.isLoggedIn()', liffObject?.isLoggedIn())
     if (liffObject?.isLoggedIn()) {
       liffObject?.logout()
     }
@@ -131,15 +133,12 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Space wrap>
-        {liffInfo?.loggedIn ? (
-          <Button onClick={handleLogout} color="primary">
-            <FormattedMessage defaultMessage="登出" />
-          </Button>
-        ) : (
-          <Button onClick={handleLogin} color="primary">
-            <FormattedMessage defaultMessage="登录" />
-          </Button>
-        )}
+        <Button onClick={handleLogin} color="primary">
+          <FormattedMessage defaultMessage="登录" />
+        </Button>
+        <Button onClick={handleLogout} color="primary">
+          <FormattedMessage defaultMessage="登出" />
+        </Button>
 
         {info.profileState === 'prompt' && (
           <Button onClick={handleAuthProfile} color="primary">
