@@ -47,16 +47,14 @@ export default function RootLayout({
   const [liffInfo, setLiffInfo] = useState<ILiffInfo | null>(null)
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      let vConsole: VConsole
-      const loadVConsole = async () => {
-        const VConsole = (await import('vconsole')).default
-        vConsole = new VConsole()
-      }
-      loadVConsole()
-      return () => {
-        if (vConsole) vConsole.destroy()
-      }
+    let vConsole: VConsole
+    const loadVConsole = async () => {
+      const VConsole = (await import('vconsole')).default
+      vConsole = new VConsole()
+    }
+    loadVConsole()
+    return () => {
+      if (vConsole) vConsole.destroy()
     }
   }, [])
 
