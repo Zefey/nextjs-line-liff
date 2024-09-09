@@ -59,6 +59,7 @@ export default function RootLayout({
   }, [])
 
   useEffect(() => {
+    console.log('start url...', window?.location?.href)
     console.log('start liff.init()...', process.env.LIFF_ID)
     liff
       .init({ liffId: process.env.LIFF_ID ?? '' })
