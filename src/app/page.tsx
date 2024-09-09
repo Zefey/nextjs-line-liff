@@ -130,6 +130,8 @@ export default function Home() {
     setActionVisible(true)
   }
 
+  console.log('window?.location?.href...', window?.location?.href)
+
   return (
     <div className={styles.container}>
       <Space wrap>
